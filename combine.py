@@ -10,7 +10,9 @@ def return_pattern(filepath):
     if not isinstance(filepath, str):
         raise TypeError("The file path must of type str")
     if not re.match("structure_z_[0-9]+\\.pdb", filepath):
-        raise ValueError("The file names must match the format 'structure_z_[0-9]+\\.pdb'")
+        raise ValueError(
+            "The file names must match the format 'structure_z_[0-9]+\\.pdb'"
+        )
     return int(re.search("[0-9]+", filepath).group(0))
 
 
@@ -42,6 +44,7 @@ def get_files(path_to_structures):
     """
     return []
 
+
 def sort_files(list_file):
     """
     Sort the list of files by the number of the structure. The file names are in the format:
@@ -50,6 +53,7 @@ def sort_files(list_file):
     :return: list of str, list of path to the pdb but sorted by their structure number.
     """
     return []
+
 
 def combine(path_to_structures):
     """
@@ -60,9 +64,7 @@ def combine(path_to_structures):
     :return:
     """
     list_files = get_files(path_to_structures)
-    sorted_list_files = sort_files(list_files)
-
-
+    sort_files(list_files)
 
 
 assert combine.__doc__
@@ -71,18 +73,22 @@ assert get_files.__doc__
 assert sort_files.__doc__
 assert combine_files.__doc__
 assert get_indexes.__doc__
-list_files = ["structure_z_2.pdb", "structure_z_1.pdb", "structure_z_4.pdb", "structure_z_12945.pdb"]
+list_files = [
+    "structure_z_2.pdb",
+    "structure_z_1.pdb",
+    "structure_z_4.pdb",
+    "structure_z_12945.pdb",
+]
 assert get_indexes(list_files) == [2, 1, 4, 12945]
 list_files = [-1, "structure_z_1.pdb", "structure_z_4.pdb", "structure_z_12945.pdb"]
 has_thrown = False
 try:
     assert get_indexes(list_files)
-except:
+except Exception:
     has_thrown = True
 assert has_thrown
 
 assert return_pattern.__doc__
 
 
-
-#assert sort_files(list_files) == ["structure_z_1.pdb", "structure_z_2.pdb", "structure_z_3.pdb", "structure_z_4.pdb"]
+# assert sort_files(list_files) == ["structure_z_1.pdb", "structure_z_2.pdb", "structure_z_3.pdb", "structure_z_4.pdb"]
