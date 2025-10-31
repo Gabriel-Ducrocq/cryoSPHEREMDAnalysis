@@ -1,4 +1,15 @@
-from src.combine import *
+import os
+import tempfile
+from pathlib import Path
+from src.combine import (
+    combine,
+    get_files,
+    get_indexes,
+    sort_files,
+    return_pattern,
+    read_file,
+    write_file,
+)
 
 
 class TestCombine:
@@ -49,6 +60,7 @@ class TestGetFiles:
             has_thrown = True
         assert has_thrown
 
+
 class TestSortFiles:
     def test_doc(self):
         assert sort_files.__doc__
@@ -79,7 +91,6 @@ class TestSortFiles:
         )
         sorted_output = sort_files(list_files, list_indexes)
         assert sorted_output == (sorted_list_indexes, sorted_list_files)
-
 
 
 class TestReturnPattern:
@@ -115,11 +126,9 @@ class TestReturnPattern:
 
         assert has_thrown
 
-
     def test_output(self):
         assert return_pattern("structure_z_10394.pdb") == 10394
         assert return_pattern("test/folder/structure_z_10394.pdb") == 10394
-
 
 
 class TestGetIndexes:
@@ -144,13 +153,19 @@ class TestGetIndexes:
         assert get_indexes(list_files) == [2, 1, 4, 12945]
 
     def test_input(self):
-        list_files = [-1, "structure_z_1.pdb", "structure_z_4.pdb", "structure_z_12945.pdb"]
+        list_files = [
+            -1,
+            "structure_z_1.pdb",
+            "structure_z_4.pdb",
+            "structure_z_12945.pdb",
+        ]
         has_thrown = False
         try:
             assert get_indexes(list_files)
         except Exception:
             has_thrown = True
         assert has_thrown
+
 
 class TestReadFile:
     def test_doc(self):
@@ -199,19 +214,14 @@ class TestWriteFile:
                 content_read = f.readlines()
 
             expected_content = (
-                    ["MODEL      1\n"]
-                    + content
-                    + ["ENDMDL\n"]
-                    + ["MODEL      2\n"]
-                    + content
-                    + ["ENDMDL\n", "END\n"]
+                ["MODEL      1\n"]
+                + content
+                + ["ENDMDL\n"]
+                + ["MODEL      2\n"]
+                + content
+                + ["ENDMDL\n", "END\n"]
             )
             assert content_read == expected_content
-
-
-
-
-
 
 
 """

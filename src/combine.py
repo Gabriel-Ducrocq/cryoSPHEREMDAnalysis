@@ -1,9 +1,6 @@
 import re
 import os
 import glob
-import pytest
-import tempfile
-import cProfile
 from pathlib import Path
 
 
@@ -135,4 +132,3 @@ def combine(path_to_structures, path_to_combined_file):
         is_last = N_files == i + 1
         content = read_file(file)
         write_file(content, path_to_combined_file, index, is_last)
-

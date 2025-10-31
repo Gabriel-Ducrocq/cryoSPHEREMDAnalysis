@@ -1,4 +1,3 @@
-import glob
 import argparse
 import MDAnalysis as mda
 from MDAnalysis.analysis.align import AlignTraj
