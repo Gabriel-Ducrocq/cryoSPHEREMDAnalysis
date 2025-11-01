@@ -1,8 +1,23 @@
 import re
 import os
 import glob
+import argparse
 from pathlib import Path
 
+
+parser_arg = argparse.ArgumentParser()
+parser_arg.add_argument(
+    "--path_structures",
+    type=str,
+    required=True,
+    help="path to the folder containing the pdb files."
+)
+parser_arg.add_argument(
+    "--output_path",
+    type=str,
+    required=True,
+    help="path to the pdb file containing the combined pdb"
+)
 
 def return_pattern(filepath):
     """
@@ -132,3 +147,10 @@ def combine(path_to_structures, path_to_combined_file):
         is_last = N_files == i + 1
         content = read_file(file)
         write_file(content, path_to_combined_file, index, is_last)
+
+
+if __name__ == "__main__":
+    args = parser_arg.parse_args()
+    struct_path = args.path_structures
+    output_path = args.output_path
+    combine(struct_path, output_path)
