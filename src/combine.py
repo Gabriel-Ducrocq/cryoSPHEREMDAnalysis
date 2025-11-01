@@ -84,7 +84,7 @@ def get_files(path_to_structures):
         raise ValueError(
             "The path to the folder containing the structures should be a string."
         )
-    if not Path.exists(path_to_structures):
+    if not os.path.isdir(path_to_structures):
         raise ValueError(f"This path {path_to_structures} does not exists")
 
     path_format = f"{path_to_structures}structure_z_[0-9]*.pdb"
