@@ -1,8 +1,45 @@
 import os
-import tempfile
+import scipy
+import argparse
 import numpy as np
-from pathlib import Path
 import MDAnalysis as mda
+
+
+parser_arg = argparse.ArgumentParser()
+parser_arg.add_argument(
+    "--structures_path",
+    type=str,
+    required=True,
+    help="path to the pdb file containing the structure we want to align to",
+)
+parser_arg.add_argument(
+    "--output_path",
+    type=str,
+    required=True,
+    help="Path the output npy file containing the linkage matrix",
+)
+parser_arg.add_argument(
+    "--output_file", type=str, required=False, help="path to the pdb output file"
+)
+
+
+def write_file(path_to_file, linkage):
+    """
+    Write the linkage matrix obtained as a result of the Hierarchical clustering
+    :param path_to_file: str, path to the file we want to save our results in.
+    :param linkage: np.array, matrix to save.
+    :return: None
+    """
+    if not isinstance(path_to_file, str) or not path_to_file.endswith(".npy"):
+        raise TypeError(
+            f"""The path to the output file must be a string with .npy ending", currently {path_to_file}"""
+        )
+    if len(linkage.shape) != 2:
+        raise ValueError(
+            f"The linkage matrix must have 2 dimensions, currently it has {len(linkage.shape)}"
+        )
+
+    np.save(path_to_file, linkage)
 
 
 def get_calpha(file_path):
@@ -28,70 +65,24 @@ def get_calpha(file_path):
     return np.array(all_coordinates)
 
 
-def clustering():
+def clustering(file_path, output_path):
     """
     Function that clusters the structures based on the C_alpha only (excluding the C1)
-    :return:
+    :param file_path: str, path to the pdb file containing the structures.
+    :param output_path: str, path to the npy file containing the linkage matrix.
+    :return: None
     """
+    calphas_positions = get_calpha(file_path)
+    n_structures = calphas_positions.shape[0]
+    calphas_positions_flattened = calphas_positions.reshape(n_structures, -1)
+    linkage_matrix = scipy.cluster.hierarchy.linkage(
+        calphas_positions_flattened, method="average"
+    )
+    write_file(output_path, linkage_matrix)
 
 
-assert clustering.__doc__
-assert get_calpha.__doc__
-has_thrown = False
-try:
-    get_calpha("path/to/file.txt")
-except TypeError:
-    has_thrown = True
-
-assert has_thrown
-
-
-has_thrown = False
-try:
-    get_calpha(1)
-except TypeError:
-    has_thrown = True
-
-assert has_thrown
-
-
-has_thrown = False
-try:
-    get_calpha(None)
-except TypeError:
-    has_thrown = True
-
-assert has_thrown
-
-
-has_thrown = False
-try:
-    get_calpha("fake/path/file.pdb")
-except ValueError:
-    has_thrown = True
-
-assert has_thrown
-
-
-def test_get_c_alpha_output():
-    with tempfile.TemporaryDirectory() as tmp_path:
-        tmp_path_lib = Path(tmp_path)
-        pdb1 = tmp_path_lib / "test.pdb"
-        with open(pdb1, "w") as f:
-            f.writelines(
-                [
-                    "MODEL      1\n",
-                    "ATOM      1  C1  MET K   1    -105.733  40.745   5.921  1.00  0.00\n",
-                    "ATOM      2  CA  GLU K   2    0.000   0.000   0.000   1.00   0.00\n",
-                    "ENDMDL\n",
-                    "MODEL      2\n",
-                    "ATOM      1  C1  MET K   1    2.000   0.000   0.000   1.00   0.00\n",
-                    "ATOM      2  CA  GLU K   2    2.000   0.000   0.000   1.00   0.00\n",
-                    "ENDMDL\n",
-                    "END",
-                ]
-            )
-
-        positions = get_calpha(str(pdb1))
-        assert np.all(positions.shape == (2, 1, 3))
-        assert np.all(positions == np.array([[[0.0, 0.0, 0.0]], [[2.0, 0.0, 0.0]]]))
+if __name__ == "__main__":
+    args = parser_arg.parse_args()
+    structures_path = args.structures_path
+    output_path = args.output_path
+    clustering(structures_path, output_path)

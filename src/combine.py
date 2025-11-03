@@ -2,7 +2,6 @@ import re
 import os
 import glob
 import argparse
-from pathlib import Path
 
 
 parser_arg = argparse.ArgumentParser()
