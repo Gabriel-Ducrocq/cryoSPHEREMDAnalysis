@@ -4,7 +4,6 @@ import argparse
 import numpy as np
 import MDAnalysis as mda
 
-
 parser_arg = argparse.ArgumentParser()
 parser_arg.add_argument(
     "--structures_path",
@@ -17,9 +16,6 @@ parser_arg.add_argument(
     type=str,
     required=True,
     help="Path the output npy file containing the linkage matrix",
-)
-parser_arg.add_argument(
-    "--output_file", type=str, required=False, help="path to the pdb output file"
 )
 
 
