@@ -9,4 +9,3 @@ def clustering(structures_file):
 
 assert clustering.__doc__
 assert clustering("file.pdb") is None
-

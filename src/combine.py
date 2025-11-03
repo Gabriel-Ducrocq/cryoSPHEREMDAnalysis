@@ -10,14 +10,15 @@ parser_arg.add_argument(
     "--path_structures",
     type=str,
     required=True,
-    help="path to the folder containing the pdb files."
+    help="path to the folder containing the pdb files.",
 )
 parser_arg.add_argument(
     "--output_path",
     type=str,
     required=True,
-    help="path to the pdb file containing the combined pdb"
+    help="path to the pdb file containing the combined pdb",
 )
+
 
 def return_pattern(filepath):
     """
