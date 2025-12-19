@@ -4,6 +4,7 @@ import pickle
 import sklearn
 import argparse
 import numpy as np
+from time import time
 import MDAnalysis as mda
 
 parser_arg = argparse.ArgumentParser()
@@ -37,8 +38,22 @@ parser_arg.add_argument(
 parser_arg.add_argument(
     "--n_clusters",
     type=int,
-    required=True,
+    required=False,
     help="Number of clusters to use.",
+)
+
+parser_arg.add_argument(
+    "--n_clusters_min",
+    type=int,
+    required=False,
+    help="Minimum number of clusters",
+)
+
+parser_arg.add_argument(
+    "--n_clusters_max",
+    type=int,
+    required=False,
+    help="Maximum number of clusters",
 )
 
 def write_file(path_to_file, linkage):
@@ -83,7 +98,7 @@ def get_calpha(file_path):
     return np.array(all_coordinates)
 
 
-def clustering(file_path, linkage_mat_path, model_path, n_clusters, algorithm):
+def clustering(file_path, linkage_mat_path, model_path, n_clusters, algorithm, n_min_clusters=None, n_max_clusters=None):
     """
     Function that clusters the structures based on the C_alpha only (excluding the C1)
     :param file_path: str, path to the pdb file containing the structures.
@@ -95,7 +110,7 @@ def clustering(file_path, linkage_mat_path, model_path, n_clusters, algorithm):
     """
     assert algorithm in ["kmeans", "hierarchical"]
     if algorithm == "kmeans":
-        clustering_kmeans(file_path, linkage_mat_path, model_path, n_clusters)
+        clustering_kmeans(file_path, linkage_mat_path, model_path, n_clusters, n_min_clusters, n_max_clusters)
     elif algorithm == "hierarchical":
         clustering_hierarchical(file_path, linkage_mat_path)
 
@@ -115,7 +130,7 @@ def clustering_hierarchical(file_path, output_path):
     write_file(output_path, linkage_matrix)
 
 
-def clustering_kmeans(file_path, linkage_mat_path, model_path, n_cluster):
+def clustering_kmeans(file_path, linkage_mat_path, model_path, n_cluster, n_min_clusters, n_max_clusters):
     """
     Function that clusters the structures based on the C_alpha only (excluding the C1) using kmeans.
     :param file_path: str, path to the pdb file containing the structures.
@@ -127,11 +142,24 @@ def clustering_kmeans(file_path, linkage_mat_path, model_path, n_cluster):
     calphas_positions = get_calpha(file_path)
     n_structures = calphas_positions.shape[0]
     calphas_positions_flattened = calphas_positions.reshape(n_structures, -1)
-    kmeans_algo = sklearn.cluster.KMeans(n_cluster)
-    all_distances = kmeans_algo.fit_transform(calphas_positions_flattened)
-    write_file(linkage_mat_path, all_distances)
-    with open(model_path, "wb") as f:
-        pickle.dump(kmeans_algo, f)
+    if n_min_clusters is None or n_max_clusters is None:
+        kmeans_algo = sklearn.cluster.KMeans(n_cluster, verbose=True)
+        all_distances = kmeans_algo.fit_transform(calphas_positions_flattened)
+        write_file(linkage_mat_path, all_distances)
+        with open(model_path, "wb") as f:
+            pickle.dump(kmeans_algo, f)
+    else:
+        for n_cluster in range(n_min_clusters, n_max_clusters+1):
+            start = time()
+            kmeans_algo = sklearn.cluster.KMeans(n_cluster, verbose=True)
+            all_distances = kmeans_algo.fit_transform(calphas_positions_flattened)
+            end = time()
+            print(f"Time for iteration {n_cluster}", end-start)
+            write_file(linkage_mat_path + f"linkage_mat_{n_cluster}.npy", all_distances)
+            with open(model_path + f"kmeans_{n_cluster}.pkl", "wb") as f:
+                pickle.dump(kmeans_algo, f)
+
+
 
 
 
@@ -143,4 +171,6 @@ if __name__ == "__main__":
     model_path = args.model_path
     algorithm = args.algo
     n_clusters = args.n_clusters
-    clustering(structures_path, linkage_mat_path, model_path, n_clusters, algorithm)
+    n_max_clusters = args.n_clusters_max
+    n_min_clusters = args.n_clusters_min
+    clustering(structures_path, linkage_mat_path, model_path, n_clusters, algorithm, n_min_clusters, n_max_clusters)
