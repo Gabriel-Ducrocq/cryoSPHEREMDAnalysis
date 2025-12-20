@@ -27,16 +27,16 @@ parser_arg.add_argument(
     help="Path to the folder where we save all the starfiles",
 )
 
-def save_starfiles(distances_file, output_path, starfile):
+def save_starfiles(distances_file, output_path, starfile_path):
     """
     Extract the lines in the starfile corresponding to each cluster
     :param distances_file: str, path to the file containing the distances between the structures and all the centroids
     :param output_path: str, path to folder containing the multiple starfiles we will save.
-    :param starfile: str, path to the starfile from which we want to extract the lines
+    :param starfile_path: str, path to the starfile from which we want to extract the lines
     :return: None
     """
     dist = np.load(distances_file)
-    star = starfile.read(starfile)
+    star = starfile.read(starfile_path)
     clusters = np.argmin(dist, axis=-1)
     all_unique = np.unique(clusters)
     for cluster_number in all_unique:
