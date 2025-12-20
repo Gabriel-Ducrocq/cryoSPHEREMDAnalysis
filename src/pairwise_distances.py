@@ -1,6 +1,8 @@
 import utils
 import sklearn
 import argparse
+import MDAnalysis as mda
+from MDAnalysis.analysis import diffusionmap
 
 
 parser_arg = argparse.ArgumentParser()
@@ -18,7 +20,6 @@ parser_arg.add_argument(
 )
 
 
-
 def compute_pairwise_distances(structures_path, output_path):
     """
     Function computing the pairwise distances between structures
@@ -26,11 +27,9 @@ def compute_pairwise_distances(structures_path, output_path):
     :param output_path: str, path where we want to save the pairwise distances matrix
     :return: None
     """
-    all_coords = utils.get_calpha(structures_path)
-    pairwise_dist = sklearn.metrics.pairwise_distances(all_coords)
-    utils.write_file(output_path, pairwise_dist)
-
-
+    univ = mda.Universe(structures_path)
+    result = diffusionmap.DistanceMatrix(univ, select='name CA').run()
+    utils.write_file(output_path, result.dist_matrix)
 
 
 if __name__ == "__main__":
