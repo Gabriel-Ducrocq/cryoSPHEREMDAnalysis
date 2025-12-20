@@ -53,7 +53,7 @@ def save_ctf_poses_pkl(ctf_array, poses_array, output_path, cluster_number, clus
     :return:
     """
     ctf_cluster = ctf_array[clusters == cluster_number]
-    poses_cluster = poses_array[clusters == cluster_number]
+    poses_cluster = (poses_array[0][clusters == cluster_number], poses_array[1][clusters == cluster_number])
     with open(output_path + f"ctf_{cluster_number}.pkl", "wb") as f:
         pkl.dump(ctf_cluster, f)
 
@@ -111,4 +111,4 @@ if __name__ == "__main__":
     output_path = args.output_path
     ctf_path = args.ctf_path
     poses_path = args.poses_path
-    treat_clusters(centroid_distances_file, output_path, starfile_path)
+    treat_clusters(centroid_distances_file, output_path, starfile_path, ctf_path, poses_path)
