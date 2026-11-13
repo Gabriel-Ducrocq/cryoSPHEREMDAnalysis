@@ -42,7 +42,7 @@ def compute_distances(reference_path, struct_path, output_file, chain_ids):
         atomB = univ.select_atoms("chainID B and resid 321:503")
     else:
         atomA = univ.select_atoms("resid 321:503")
-        atomB = univ.select_atoms("resid 824:1006")
+        atomB = univ.select_atoms("resid 825:1007")
 
     for i, ts in tqdm(enumerate(univ.trajectory)):
         centerA = atomA.center_of_mass()
