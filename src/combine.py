@@ -19,20 +19,24 @@ parser_arg.add_argument(
 )
 
 
+_FILE_PATTERN = re.compile(r"(structure_z|test)_(\d+)\.pdb")
+
 def return_pattern(filepath):
     """
     Returns the index number of the file name.
     :param filepath: str, path of the file
-    :return: integer, the index of the file.
+    :return: int, the index of the file.
     """
     if not isinstance(filepath, str):
-        raise TypeError("The file path must of type str")
-    if not re.match(".*structure_z_[0-9]+\\.pdb", filepath):
+        raise TypeError("The file path must be of type str")
+    file_name = os.path.basename(filepath)
+    match = _FILE_PATTERN.fullmatch(file_name)
+    if match is None:
         raise ValueError(
-            "The file names must match the format '*/structure_z_[0-9]+\\.pdb'"
+            f"Invalid file name '{file_name}': expected "
+            "'structure_z_<number>.pdb' or 'test_<number>.pdb'"
         )
-    file_name = re.search(r"structure_z_\d+\.pdb", filepath).group(0)
-    return int(re.search("[0-9]+", file_name).group(0))
+    return int(match.group(2))
 
 
 def get_indexes(list_file):
