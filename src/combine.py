@@ -87,11 +87,15 @@ def get_files(path_to_structures):
     if not os.path.isdir(path_to_structures):
         raise ValueError(f"This path {path_to_structures} does not exists")
 
-    path_format = f"{path_to_structures}structure_z_[0-9]*.pdb"
-    structures_path = glob.glob(path_format)
+    pattern = re.compile(r"^(structure_z|test)_\d+\.pdb$")
+    structures_path = [
+        os.path.join(path_to_structures, f)
+        for f in os.listdir(path_to_structures)
+        if pattern.match(f)
+    ]
     if structures_path == []:
         raise Exception(f"""The folder {path_to_structures} does not contain any file in the format
-                        {path_format}""")
+                        "^(structure_z|test)_\d+\.pdb$")""")
     return structures_path
 
 
